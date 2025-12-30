@@ -30,6 +30,6 @@ def vote(request, poll_id):
 @login_required
 def result(request, poll_id):
     poll = Poll.objects.get(id=poll_id)
-    choices = Choices.objects.filter(poll=poll)
+    choices = Choice.objects.filter(poll=poll)
     return render(request, 'result.html', {'poll': poll, 'choices': choices})
                                     
