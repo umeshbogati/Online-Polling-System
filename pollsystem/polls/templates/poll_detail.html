@@ -2,7 +2,7 @@
 <form method="post" action="/vote/{{ poll.id }}/">
     {% csrf_token %} 
     {% for choice in choices %}
-        <input type="radio" name="choice" value="{{ choice.id }}"> {{ choice.option }}<br>
+        <input type="checkbox" name="choice" value="{{ choice.id }}"> {{ choice.option }}<br>
     {% endfor %}
     <br>
     <button type="submit">Vote</button>
