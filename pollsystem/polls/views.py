@@ -78,4 +78,4 @@ def register(request):
             User.objects.create_user(username=username, password=password)
             messages.success(request, 'Account created sucessfully')
             return redirect('login')
-    return render(request, 'register.html')
+    return render(request, 'polls/register.html')
