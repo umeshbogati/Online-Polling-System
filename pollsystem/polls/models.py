@@ -6,9 +6,11 @@ class Poll(models.Model):
     question = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(null=True, blank=True)
-    
+    @property
     def is_active(self):
-        return timezone.now() < self.end_date
+        if self.end_date is None:
+            return True
+        return self.end_date > timezone.now() 
     def __str__(self):
         return self.question
 
