@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from .models import Poll, Choice, Vote
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.utils import timezone
 
 # --- Login/Logout ---
 from django.shortcuts import render, redirect
@@ -43,7 +44,8 @@ def poll_detail(request, poll_id):
 @login_required
 def vote(request, poll_id):
     poll = get_object_or_404(Poll, id=poll_id)
-
+    if poll.end_date < timezone.now():
+        return render(request, 'closed.html')
     # Check if user has already voted
     if Vote.objects.filter(user=request.user, poll=poll).exists():
         return redirect('result', poll_id=poll.id)
