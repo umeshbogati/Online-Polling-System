@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ poll.title }} - Results</title>
+</head>
+<body>
+    <h2>{{ poll.title }} - Results</h2>
+    <ul>
+        {% for choice in choices %}
+            <li>{{ choice.text }}: {{ choice.votes }} votes</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'poll_list' %}">Back to Polls</a>
+</body>
+</html>

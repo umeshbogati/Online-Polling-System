@@ -1,35 +1,66 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
 from .models import Poll, Choice, Vote
 
+# --- Login/Logout ---
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
 
-# Create your views here.
+def user_login(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('poll_list')
+        else:
+            return render(request, 'polls/login.html', {'error': 'Invalid username or password'})
+    return render(request, 'polls/login.html')
+
+
+def user_logout(request):
+    logout(request)
+    return redirect('login')
+
+# --- Poll list ---
 @login_required
 def poll_list(request):
     polls = Poll.objects.all()
-    return render(request, 'polls/poll_list.html', {'polls': polls})         
+    return render(request, 'polls/poll_list.html', {'polls': polls})
 
+# --- Poll detail with choices ---
 @login_required
 def poll_detail(request, poll_id):
-    poll = Poll.objects.get(id=poll_id)
+    poll = get_object_or_404(Poll, id=poll_id)
     choices = Choice.objects.filter(poll=poll)
-    return render(request, 'poll_detail.html', {'poll': poll, 'choices': choices})  
+    return render(request, 'polls/poll_detail.html', {'poll': poll, 'choices': choices})
 
+# --- Vote ---
 @login_required
 def vote(request, poll_id):
-    poll = Poll.objects.get(id=poll_id)
-    if Vote.objects.filter(user=request.user, poll=poll).exits():
-        return redirect('result', poll_id=poll.id)
-    choice_id = request.POST.get('choice')
-    choice = choice.objects.get(id=choice_id)
-    choice.votes += 1 
-    choice.save()
-    Vote.objects.create(user=request.user, poll=poll)
-    return redirect('result', poll_id=poll.id)
+    poll = get_object_or_404(Poll, id=poll_id)
 
+    # Check if user has already voted
+    if Vote.objects.filter(user=request.user, poll=poll).exists():
+        return redirect('result', poll_id=poll.id)
+
+    if request.method == 'POST':
+        choice_ids = request.POST.getlist('choices')  # Multiple choice
+        for cid in choice_ids:
+            choice = Choice.objects.get(id=cid)
+            choice.votes += 1
+            choice.save()
+
+        Vote.objects.create(user=request.user, poll=poll)
+        return redirect('result', poll_id=poll.id)
+
+    return redirect('poll_detail', poll_id=poll.id)
+
+# --- Results ---
 @login_required
 def result(request, poll_id):
-    poll = Poll.objects.get(id=poll_id)
+    poll = get_object_or_404(Poll, id=poll_id)
     choices = Choice.objects.filter(poll=poll)
-    return render(request, 'result.html', {'poll': poll, 'choices': choices})
-                                    
+    return render(request, 'polls/result.html', {'poll': poll, 'choices': choices})

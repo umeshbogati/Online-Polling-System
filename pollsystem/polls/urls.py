@@ -6,5 +6,5 @@ urlpatterns = [
     path('poll/<int:poll_id>/', views.poll_detail, name='poll_detail'),
     path('vote/<int:poll_id>/', views.vote, name='vote'),
     path('result/<int:poll_id>/', views.result, name='result'),
-    
+    path('login/', views.user_login, name='login'),
 ]
