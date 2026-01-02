@@ -44,7 +44,7 @@ def poll_detail(request, poll_id):
 @login_required
 def vote(request, poll_id):
     poll = get_object_or_404(Poll, id=poll_id)
-    if poll.end_date < timezone.now():
+    if poll.end_date and poll.end_date < timezone.now():
         return render(request, 'closed.html')
     # Check if user has already voted
     if Vote.objects.filter(user=request.user, poll=poll).exists():
