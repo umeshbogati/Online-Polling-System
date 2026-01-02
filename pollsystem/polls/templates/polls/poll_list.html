@@ -6,13 +6,20 @@
 <body>
     <h2>Available Polls</h2>
     <ul>
-        {% for poll in polls %}
-            <li>
-                <a href="{% url 'poll_detail' poll.id %}">{{ poll.question }}</a>
-            </li>
-        {% empty %}
-            <li>No polls available.</li>
-        {% endfor %}
-    </ul>
+{% for poll in polls %}
+    <li>
+        {{ poll.question }}
+
+        {% if poll.is_active %}
+            | <a href="{% url 'poll_detail' poll.id %}">Vote</a>
+        {% else %}
+            | <strong>Closed</strong>
+        {% endif %}
+    </li>
+{% empty %}
+    <li>No polls available.</li>
+{% endfor %}
+</ul>
+
 </body>
 </html>
