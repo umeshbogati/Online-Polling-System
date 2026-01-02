@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from .models import Poll, Choice, Vote
+from django.contrib.auth.models import User
+from django.contrib import messages
 
 # --- Login/Logout ---
 from django.shortcuts import render, redirect
@@ -64,3 +66,16 @@ def result(request, poll_id):
     poll = get_object_or_404(Poll, id=poll_id)
     choices = Choice.objects.filter(poll=poll)
     return render(request, 'polls/result.html', {'poll': poll, 'choices': choices})
+
+def register(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists')
+        else:
+            User.objects.create_user(username=username, password=password)
+            messages.success(request, 'Account created sucessfully')
+            return redirect('login')
+    return render(request, 'register.html')
